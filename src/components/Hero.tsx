@@ -20,17 +20,24 @@ const Hero = () => {
       const { data, error } = await supabase
         .from('site_settings')
         .select('parishes_count, priests_count, faithful_count, years_count')
-        .single();
-      
-      if (error) throw error;
-      
-      if (data) {
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error("Erro ao carregar estatísticas:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        console.log("Estatísticas carregadas do banco:", data[0]);
         setStats({
-          parishes: data.parishes_count || 25,
-          priests: data.priests_count || 50,
-          faithful: data.faithful_count || "1M+",
-          years: data.years_count || 45
+          parishes: data[0].parishes_count || 25,
+          priests: data[0].priests_count || 50,
+          faithful: data[0].faithful_count || "1M+",
+          years: data[0].years_count || 45
         });
+      } else {
+        console.log("Nenhum dado de estatísticas encontrado no banco");
       }
     } catch (error) {
       console.error("Erro ao carregar estatísticas:", error);
